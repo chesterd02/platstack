@@ -14,12 +14,17 @@ mappingTemplates:
   - type: Mutation
     field: editMyProfile
     dataSource: editProfileFunction
+    request: false
+    response: false
 
+  # NESTED FIELDS
+  # Or you can add Pipeline resolvers
 
 # you can move mapping and datasources to individual files
 # and reference them here
 dataSources:
   # - ${file(./resources/rds/datasources.yml)}
+  # NONE type is used for sub
   - type: NONE
     name: None
   - type: AMAZON_DYNAMODB

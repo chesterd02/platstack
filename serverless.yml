@@ -90,6 +90,15 @@ functions:
         Action: dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
+  editProfile:
+    handler: functions/edit-profile.handler
+    environment:
+      USERS_TABLE: !Ref UsersTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:PutItem
+        Resource: !GetAtt UsersTable.Arn
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -133,30 +142,75 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
  Resources:
-    UsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        BillingMode: PAY_PER_REQUEST
-        KeySchema:
-          - AttributeName: profileId
-            KeyType: HASH
-        AttributeDefinitions: 
-          - AttributeName: profileId
-            AttributeType: S
-          - AttributeName: screenName
-            AttributeType: S
-        GlobalSecondaryIndexes:
-          - IndexName: byScreenName
-            KeySchema:
-              - AttributeName: screenName
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        Tags:
-          - Key: Environment
-            Value: ${self:custom.stage}
-          - Key: Name
-            Value: users-table
+ # setup a CognitoUserPool
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireUppercase: false
+          RequireSymbols: false
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: name
+          Required: false
+          Mutable: true
+      # add a trigger so when a user clicks on the link we can call our lambda function
+      LambdaConfig:
+        PostConfirmation: !GetAtt ConfirmUserSignupLambdaFunction.Arn
+
+  # add a client that communicates with our pool
+  WebUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: web
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+
+  # create the permissions so cognito can contact our lambda
+  UserPoolInvokeConfirmUserSignupLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !Ref ConfirmUserSignupLambdaFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt CognitoUserPool.Arn
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: profileId
+          KeyType: HASH
+      AttributeDefinitions: 
+        - AttributeName: profileId
+          AttributeType: S
+        - AttributeName: screenName
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: byScreenName
+          KeySchema:
+            - AttributeName: screenName
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: ${self:custom.stage}
+        - Key: Name
+          Value: users-table
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
