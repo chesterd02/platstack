@@ -1,0 +1,24 @@
+{
+  "name": "platstack",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A starter project for the platstack team",
+  "main": "index.js",
+  "scripts": {
+    "sls": "sls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chesterd02/platstack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chesterd02/platstack/issues"
+  },
+  "homepage": "https://github.com/chesterd02/platstack#readme",
+  "devDependencies": {
+    "serverless": "^3.24.1"
+  }
+}
