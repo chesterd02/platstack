@@ -23,14 +23,11 @@ type MyProfile implements IProfile{
   name: String!
   screenName: String!
   imageUrl: AWSURL
-  backgroundImageUrl: AWSURL
-  createdAt: AWSDateTime!
-  activeStacks: StacksPage!
 }
 
 type StacksPage {
-  nextToken: string,
-  stacks:[string]!
+  nextToken: String,
+  stacks:[String]!
 }
 
 type ProfileInput {

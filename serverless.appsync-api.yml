@@ -2,14 +2,14 @@ name: platstackappsync
 schema: schema.api.graphql
 authenticationType: AMAZON_COGNITO_USER_POOLS
 userPoolConfig:
-  awsRegion: us-west-2
+  awsRegion: us-east-1
   defaultAction: ALLOW
   userPoolId: !Ref CognitoUserPool
 mappingTemplatesLocation: mapping-templates
 mappingTemplates:
   - type: Query
     field: getMyProfile
-    dataSource: userTable
+    dataSource: usersTable
 
   - type: Mutation
     field: editMyProfile
@@ -28,9 +28,9 @@ dataSources:
   - type: NONE
     name: None
   - type: AMAZON_DYNAMODB
-    name: userTable
+    name: usersTable
     config:
-      tableName: !Ref UserTable
+      tableName: !Ref UsersTable
   - type: AWS_LAMBDA
     name: editProfileFunction
     config:  

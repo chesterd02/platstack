@@ -1,10 +1,12 @@
 'use strict';
 
-module.exports.hello = async (event) => {
+const { USERS_TABLE } = process.env
+
+module.exports.handler = async (event) => {
   // Do whatever you want here, but this must return an Object of type MyProfile
 
+  const username = event.identity.username
   
-
   const response = {
     id: "id",
     name: "name",
@@ -12,10 +14,8 @@ module.exports.hello = async (event) => {
     imageUrl: "ImageUrl",
     backgroundImageUrl: "BackgroundImage URL",
     createdAt: "12345",
-    activeStacks:
+    activeStacks: ["stack1"]
   }
 
-  return event;
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
+  return response;
 };
